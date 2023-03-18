@@ -102,17 +102,33 @@ static void free_inter(intersection_t *inter)
     }
 }
 
+static pos_t get_start(char **map, pos_t size)
+{
+    for (int i = 0; i < size.y; i++)
+        for (int j = 0; j < size.x; j++)
+            if (map[i][j] == 'S')
+                return (pos_t){j, i};
+    return (pos_t){-1, -1};
+}
+
 char **solver(char **map, pos_t size)
 {
+    pos_t start;
     intersection_t *inter = malloc(sizeof(intersection_t));
 
     size.x = size.x * 2 + 1;
     size.y = size.y * 2 + 1;
-    inter->pos = (pos_t){1, 1};
+
+    start = get_start(map, size);
+    if (start.x < 0)
+        return NULL;
+
+    inter->pos = start;
 
     if (next_depth(map, size, inter)) {
         draw_path(map, inter);
         free_inter(inter);
+        map[start.y][start.x] = 'S';
         return map;
     }
     free_inter(inter);
